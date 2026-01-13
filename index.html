@@ -341,12 +341,16 @@
         }
 
         .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 2rem;
         }
 
         .service-card {
+            flex: 0 1 calc(50% - 1rem);
+            min-width: 300px;
+            max-width: 400px;
             background: var(--bg-card);
             padding: 2.5rem;
             border-radius: var(--radius-lg);
@@ -590,12 +594,9 @@
                 padding: 4rem 0;
             }
 
-            .services-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
             .service-card {
+                flex: 1 1 100%;
+                max-width: 100%;
                 padding: 1.5rem;
             }
 
@@ -692,7 +693,7 @@
                     <li><a href="index.html" class="active">Home</a></li>
                     <li><a href="services.html">Services</a></li>
                     <li><a href="about.html">About</a></li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
                 </ul>
                 <div class="nav-cta">
                     <a href="contact.html" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.9rem;">Get in Touch</a>
@@ -867,7 +868,7 @@
                     <h4>Contact</h4>
                     <ul>
                         <li><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></li>
-                        <li><a href="contact.html">Lexington, KY</a></li>
+                        <li><a href="contact.html"></a></li>
                     </ul>
                 </div>
             </div>

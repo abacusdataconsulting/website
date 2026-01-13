@@ -134,12 +134,16 @@
             background: linear-gradient(180deg, var(--bg-body) 0%, #0e1f3d 100%);
         }
         .values-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 2rem;
             margin-top: 3rem;
         }
         .value-card {
+            flex: 0 1 calc(50% - 1rem);
+            min-width: 250px;
+            max-width: 320px;
             background: var(--bg-card);
             padding: 2rem;
             border-radius: var(--radius-lg);
@@ -228,6 +232,7 @@
             .logo { font-size: 1.1rem; }
             .logo img { width: 28px; height: 28px; }
             .about-grid { grid-template-columns: 1fr; }
+            .value-card { flex: 1 1 100%; max-width: 100%; }
             h1 { font-size: 2rem; }
             h2 { font-size: 1.75rem; }
             .page-header { padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + 2rem); }
@@ -274,13 +279,13 @@
                 <div class="about-grid">
                     <div class="about-text">
                         <h2>Our Story</h2>
-                        <p>Abacus Data Consulting was founded in 2018 with a clear purpose: using data to help people make better decisions.</p>
+                        <p>Abacus Data Consulting was founded in 2018 with for the purpose of using data to help people make better decisions.</p>
                         <p>In an increasingly competitive world, data is a powerful tool that, when leveraged properly, leads to unique insights that support smarter, data-driven decision making.</p>
                         <p>What started as a focused data consulting practice has grown to encompass web development, social media marketing, and machine learning—providing comprehensive solutions to help our clients succeed.</p>
                     </div>
                     <div class="about-visual" style="background: var(--bg-card); border-radius: var(--radius-lg); padding: 3rem; text-align: center;">
                         <img src="assets/abacus_logo.png" alt="Abacus Logo" style="width: 150px; height: 150px; object-fit: contain; margin-bottom: 1.5rem;">
-                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Lexington, Kentucky</h3>
+                        <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Fully Remote Team</h3>
                         <p style="margin-bottom: 0;">Fully Remote Team</p>
                     </div>
                 </div>
@@ -289,6 +294,7 @@
 
         <section class="values-section">
             <div class="container">
+
                 <h2 style="text-align: center;">Our Values</h2>
                 <p style="text-align: center; max-width: 600px; margin: 0 auto;">The principles that guide everything we do.</p>
 
@@ -319,7 +325,7 @@
                 <div class="timeline">
                     <div class="timeline-item">
                         <h3>2018</h3>
-                        <p>Abacus Data Consulting founded in Lexington, Kentucky with a mission to help people make better decisions through data.</p>
+                        <p>Abacus Data Consulting founded with a mission to help people make better decisions through data.</p>
                     </div>
                     <div class="timeline-item">
                         <h3>Growth</h3>
@@ -367,7 +373,7 @@
                     <h4>Contact</h4>
                     <ul>
                         <li><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></li>
-                        <li><a href="contact.html">Lexington, KY</a></li>
+                        <li><a href="contact.html"></a></li>
                     </ul>
                 </div>
             </div>

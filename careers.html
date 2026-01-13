@@ -130,12 +130,16 @@
             padding: 4rem 0;
         }
         .perks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 2rem;
             margin-top: 3rem;
         }
         .perk-card {
+            flex: 0 1 calc(50% - 1rem);
+            min-width: 280px;
+            max-width: 350px;
             background: var(--bg-card);
             padding: 2rem;
             border-radius: var(--radius-lg);
@@ -255,6 +259,7 @@
             .logo { font-size: 1.1rem; }
             .logo img { width: 28px; height: 28px; }
             .culture-grid { grid-template-columns: 1fr; }
+            .perk-card { flex: 1 1 100%; max-width: 100%; }
             h1 { font-size: 2rem; }
             h2 { font-size: 1.75rem; }
             .page-header { padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px) + 2rem); }
@@ -322,55 +327,10 @@
             </div>
         </section>
 
-        <section class="culture-section">
-            <div class="container">
-                <h2 style="text-align: center;">How We Work</h2>
-                <div class="culture-grid">
-                    <div class="culture-item">
-                        <h3>Our Values</h3>
-                        <ul>
-                            <li>Act with integrity and professionalism</li>
-                            <li>Treat colleagues, clients, and partners with respect</li>
-                            <li>Communicate honestly and constructively</li>
-                            <li>Take ownership of your work and commitments</li>
-                        </ul>
-                    </div>
-                    <div class="culture-item">
-                        <h3>Communication</h3>
-                        <ul>
-                            <li>Email for primary communication</li>
-                            <li>GitHub for project collaboration</li>
-                            <li>Text messaging for quick coordination</li>
-                            <li>Reasonable response times based on context</li>
-                        </ul>
-                    </div>
-                    <div class="culture-item">
-                        <h3>Employment Types</h3>
-                        <ul>
-                            <li>Independent contractor positions</li>
-                            <li>Part-time arrangements</li>
-                            <li>Open to other structures as we grow</li>
-                            <li>Weekly pay schedule</li>
-                        </ul>
-                    </div>
-                    <div class="culture-item">
-                        <h3>Getting Started</h3>
-                        <ul>
-                            <li>Two-month probationary period</li>
-                            <li>Performance review at end of probation</li>
-                            <li>Ongoing quarterly reviews</li>
-                            <li>Clear expectations and feedback</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section class="positions-section">
             <div class="container">
                 <h2 style="text-align: center;">Open Positions</h2>
                 <div class="positions-note">
-                    <h3>We're Always Looking for Talent</h3>
                     <p>While we may not have specific openings listed at the moment, we're always interested in connecting with skilled professionals in data analytics, web development, social media marketing, and machine learning.</p>
                     <p>If you're passionate about using data to help people make better decisions, we'd love to hear from you.</p>
                     <a href="contact.html" class="btn btn-primary">Get In Touch</a>
@@ -412,7 +372,7 @@
                     <h4>Contact</h4>
                     <ul>
                         <li><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></li>
-                        <li><a href="contact.html">Lexington, KY</a></li>
+                        <li><a href="contact.html"></a></li>
                     </ul>
                 </div>
             </div>

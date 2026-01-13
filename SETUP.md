@@ -88,7 +88,7 @@ Edit `functions/api/contact.js` and update the `CONFIG` object with your domain:
 const CONFIG = {
   toEmail: 'abacus.data.consulting@gmail.com',
   toName: 'Abacus Data Consulting',
-  fromEmail: 'noreply@yourdomain.com',  // ← Update this
+  fromEmail: 'noreply@abacus.com',  // ← Update this
   fromName: 'Abacus Website',
 };
 ```
