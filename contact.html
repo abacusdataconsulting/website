@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Abacus Data Consulting</title>
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --bg-body: #0b0f19;
+            --bg-card: #151b2b;
+            --bg-nav: rgba(11, 15, 25, 0.85);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --container-width: 1200px;
+            --header-height: 80px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+        h1 { font-size: 3rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 2rem; margin-bottom: 1rem; }
+        p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1.1rem; }
+        a { text-decoration: none; color: inherit; transition: color 0.3s ease; }
+
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 2rem; }
+        .text-gradient {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 1000;
+            background: var(--bg-nav);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .logo img { width: 32px; height: 32px; object-fit: contain; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        /* Page Header */
+        .page-header {
+            padding-top: calc(var(--header-height) + 4rem);
+            padding-bottom: 4rem;
+            text-align: center;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 2rem 0 6rem;
+        }
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-body);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-md);
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .form-group select {
+            cursor: pointer;
+        }
+        .form-group select option {
+            background: var(--bg-body);
+        }
+
+        /* Contact Info */
+        .contact-info h2 {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .info-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .info-card h3 {
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .info-card p {
+            margin-bottom: 0;
+        }
+        .info-card a {
+            color: var(--text-muted);
+        }
+        .info-card a:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Response Time */
+        .response-note {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .response-note p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 4rem 0 2rem;
+            background: #080b12;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .footer-brand { max-width: 300px; }
+        .footer-links h4 { color: var(--text-main); margin-bottom: 1.5rem; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--text-muted); font-size: 0.95rem; }
+        .footer-links a:hover { color: var(--accent-primary); }
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            h1 { font-size: 2.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">
+                    <img src="assets/abacus_logo.png" alt="Abacus Data Consulting Logo">
+                    Abacus Data Consulting
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html" class="active">Contact</a></li>
+                </ul>
+                <div class="nav-cta">
+                    <a href="contact.html" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.9rem;">Get in Touch</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Get In <span class="text-gradient">Touch</span></h1>
+                <p>Have a project in mind? We'd love to hear from you.</p>
+            </div>
+        </section>
+
+        <section class="contact-section">
+            <div class="container">
+                <div class="contact-grid">
+                    <!-- Contact Form -->
+                    <div class="contact-form">
+                        <form action="mailto:abacus.data.consulting@gmail.com" method="post" enctype="text/plain">
+                            <div class="form-group">
+                                <label for="name">Your Name</label>
+                                <input type="text" id="name" name="name" required placeholder="John Smith">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required placeholder="john@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="service">Service Interested In</label>
+                                <select id="service" name="service">
+                                    <option value="">Select a service...</option>
+                                    <option value="data-analytics">Data Analytics</option>
+                                    <option value="web-development">Web Development</option>
+                                    <option value="social-media">Social Media Marketing</option>
+                                    <option value="machine-learning">Machine Learning</option>
+                                    <option value="other">Other / Not Sure</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Your Message</label>
+                                <textarea id="message" name="message" required placeholder="Tell us about your project or how we can help..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="contact-info">
+                        <h2>Contact Information</h2>
+                        <p>Reach out directly or fill out the form and we'll get back to you.</p>
+
+                        <div class="info-card">
+                            <h3>Email</h3>
+                            <p><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>Location</h3>
+                            <p>Lexington, Kentucky<br>United States</p>
+                        </div>
+
+                        <div class="info-card">
+                            <h3>Work Style</h3>
+                            <p>Fully remote team using email, GitHub, and web-based collaboration tools.</p>
+                        </div>
+
+                        <div class="response-note">
+                            <p><strong>Response Time:</strong> We typically respond within 1-2 business days. For urgent matters, please indicate so in your message.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <img src="assets/abacus_logo.png" alt="Abacus Data Consulting Logo">
+                        Abacus Data Consulting
+                    </div>
+                    <p style="font-size: 0.9rem;">Empowering better decisions through data.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="services.html#data-analytics">Data Analytics</a></li>
+                        <li><a href="services.html#web-development">Web Development</a></li>
+                        <li><a href="services.html#social-media">Social Media Marketing</a></li>
+                        <li><a href="services.html#machine-learning">Machine Learning</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></li>
+                        <li><a href="contact.html">Lexington, KY</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 Abacus Data Consulting. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

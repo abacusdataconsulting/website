@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | Abacus Data Consulting</title>
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --bg-body: #0b0f19;
+            --bg-card: #151b2b;
+            --bg-nav: rgba(11, 15, 25, 0.85);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --container-width: 1200px;
+            --header-height: 80px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+        h1 { font-size: 3rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 2rem; margin-bottom: 1rem; }
+        h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1.1rem; }
+        a { text-decoration: none; color: inherit; transition: color 0.3s ease; }
+
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 2rem; }
+        .text-gradient {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            border-color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 1000;
+            background: var(--bg-nav);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .logo img { width: 32px; height: 32px; object-fit: contain; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
+
+        /* Page Header */
+        .page-header {
+            padding-top: calc(var(--header-height) + 4rem);
+            padding-bottom: 4rem;
+            text-align: center;
+        }
+
+        /* Service Sections */
+        .service-section {
+            padding: 5rem 0;
+            scroll-margin-top: var(--header-height);
+        }
+        .service-section:nth-child(even) {
+            background: linear-gradient(180deg, #0f131f 0%, var(--bg-body) 100%);
+        }
+        .service-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .service-grid.reverse { direction: rtl; }
+        .service-grid.reverse > * { direction: ltr; }
+
+        .service-content h2 { text-align: left; color: var(--text-main); }
+        .service-content ul {
+            list-style: none;
+            margin: 2rem 0;
+        }
+        .service-content li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .service-content li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        .service-visual {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .service-icon {
+            width: 120px;
+            height: 120px;
+            color: var(--accent-primary);
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 0;
+            text-align: center;
+            background: var(--bg-card);
+        }
+        .cta-section h2 { margin-bottom: 1rem; }
+        .cta-section p { max-width: 600px; margin: 0 auto 2rem; }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 4rem 0 2rem;
+            background: #080b12;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .footer-brand { max-width: 300px; }
+        .footer-links h4 { color: var(--text-main); margin-bottom: 1.5rem; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--text-muted); font-size: 0.95rem; }
+        .footer-links a:hover { color: var(--accent-primary); }
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .service-grid { grid-template-columns: 1fr; }
+            .service-grid.reverse { direction: ltr; }
+            .nav-links { display: none; }
+            h1 { font-size: 2.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">
+                    <img src="assets/abacus_logo.png" alt="Abacus Data Consulting Logo">
+                    Abacus Data Consulting
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html" class="active">Services</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+                <div class="nav-cta">
+                    <a href="contact.html" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.9rem;">Get in Touch</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Our <span class="text-gradient">Services</span></h1>
+                <p>Comprehensive solutions that empower better decision making in an ever-competing world.</p>
+            </div>
+        </section>
+
+        <!-- Data Analytics -->
+        <section class="service-section" id="data-analytics">
+            <div class="container">
+                <div class="service-grid">
+                    <div class="service-content">
+                        <h2>Data Analytics</h2>
+                        <p>Transform raw data into actionable insights. We help you understand trends, identify opportunities, and make informed decisions backed by evidence.</p>
+                        <ul>
+                            <li>Data collection and cleaning</li>
+                            <li>Statistical analysis and modeling</li>
+                            <li>Custom dashboards and reporting</li>
+                            <li>Trend identification and forecasting</li>
+                            <li>Business intelligence solutions</li>
+                        </ul>
+                        <a href="contact.html" class="btn btn-outline">Discuss Your Project</a>
+                    </div>
+                    <div class="service-visual">
+                        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Web Development -->
+        <section class="service-section" id="web-development">
+            <div class="container">
+                <div class="service-grid reverse">
+                    <div class="service-content">
+                        <h2>Web Development</h2>
+                        <p>Custom web solutions built with purpose. We create digital experiences that serve your business goals and provide value to your users.</p>
+                        <ul>
+                            <li>Responsive website design and development</li>
+                            <li>Web application development</li>
+                            <li>E-commerce solutions</li>
+                            <li>Content management systems</li>
+                            <li>Website maintenance and support</li>
+                        </ul>
+                        <a href="contact.html" class="btn btn-outline">Discuss Your Project</a>
+                    </div>
+                    <div class="service-visual">
+                        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Media Marketing -->
+        <section class="service-section" id="social-media">
+            <div class="container">
+                <div class="service-grid">
+                    <div class="service-content">
+                        <h2>Social Media Marketing</h2>
+                        <p>Strategic, data-informed campaigns that connect with your audience. We leverage insights to build engagement and drive meaningful results.</p>
+                        <ul>
+                            <li>Social media strategy development</li>
+                            <li>Content creation and scheduling</li>
+                            <li>Audience analytics and insights</li>
+                            <li>Paid advertising campaigns</li>
+                            <li>Performance tracking and optimization</li>
+                        </ul>
+                        <a href="contact.html" class="btn btn-outline">Discuss Your Project</a>
+                    </div>
+                    <div class="service-visual">
+                        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Machine Learning -->
+        <section class="service-section" id="machine-learning">
+            <div class="container">
+                <div class="service-grid reverse">
+                    <div class="service-content">
+                        <h2>Machine Learning <span class="badge">Expanding</span></h2>
+                        <p>Leverage predictive analytics and automation to uncover patterns and forecast trends. The future of data-driven decision making.</p>
+                        <ul>
+                            <li>Predictive modeling</li>
+                            <li>Pattern recognition and classification</li>
+                            <li>Automated data processing</li>
+                            <li>Custom ML solutions</li>
+                            <li>Model training and deployment</li>
+                        </ul>
+                        <a href="contact.html" class="btn btn-outline">Discuss Your Project</a>
+                    </div>
+                    <div class="service-visual">
+                        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"></path>
+                            <path d="M12 14a5 5 0 0 0-5 5v2a5 5 0 0 0 10 0v-2a5 5 0 0 0-5-5z"></path>
+                            <line x1="12" y1="9" x2="12" y2="14"></line>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Get Started?</h2>
+                <p>Let's discuss how we can help you make better decisions with data.</p>
+                <a href="contact.html" class="btn btn-primary">Contact Us Today</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <img src="assets/abacus_logo.png" alt="Abacus Data Consulting Logo">
+                        Abacus Data Consulting
+                    </div>
+                    <p style="font-size: 0.9rem;">Empowering better decisions through data.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#data-analytics">Data Analytics</a></li>
+                        <li><a href="#web-development">Web Development</a></li>
+                        <li><a href="#social-media">Social Media Marketing</a></li>
+                        <li><a href="#machine-learning">Machine Learning</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:abacus.data.consulting@gmail.com">abacus.data.consulting@gmail.com</a></li>
+                        <li><a href="contact.html">Lexington, KY</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 Abacus Data Consulting. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
