@@ -211,6 +211,40 @@
             font-size: 0.95rem;
         }
 
+        /* Form States */
+        .form-message {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        .form-message svg {
+            margin-bottom: 1rem;
+        }
+        .form-message.success svg {
+            color: #10b981;
+        }
+        .form-message.error svg {
+            color: #ef4444;
+        }
+        .form-message h3 {
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+        .form-message p {
+            margin-bottom: 0;
+        }
+        #submitBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .btn-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Footer */
         footer {
             border-top: 1px solid rgba(210, 174, 106, 0.15);
@@ -312,7 +346,7 @@
                 <div class="contact-grid">
                     <!-- Contact Form -->
                     <div class="contact-form">
-                        <form action="mailto:abacus.data.consulting@gmail.com" method="post" enctype="text/plain">
+                        <form id="contactForm">
                             <div class="form-group">
                                 <label for="name">Your Name</label>
                                 <input type="text" id="name" name="name" required placeholder="John Smith">
@@ -327,11 +361,11 @@
                                 <label for="service">Service Interested In</label>
                                 <select id="service" name="service">
                                     <option value="">Select a service...</option>
-                                    <option value="data-analytics">Data Analytics</option>
-                                    <option value="web-development">Web Development</option>
-                                    <option value="social-media">Social Media Marketing</option>
-                                    <option value="machine-learning">Machine Learning</option>
-                                    <option value="other">Other / Not Sure</option>
+                                    <option value="Data Analytics">Data Analytics</option>
+                                    <option value="Web Development">Web Development</option>
+                                    <option value="Social Media Marketing">Social Media Marketing</option>
+                                    <option value="Machine Learning">Machine Learning</option>
+                                    <option value="Other / Not Sure">Other / Not Sure</option>
                                 </select>
                             </div>
 
@@ -340,8 +374,33 @@
                                 <textarea id="message" name="message" required placeholder="Tell us about your project or how we can help..."></textarea>
                             </div>
 
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                            <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%;">
+                                <span class="btn-text">Send Message</span>
+                                <span class="btn-loading" style="display: none;">Sending...</span>
+                            </button>
                         </form>
+
+                        <!-- Success Message -->
+                        <div id="formSuccess" class="form-message success" style="display: none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <h3>Message Sent!</h3>
+                            <p>Thank you for reaching out. We'll get back to you within 1-2 business days.</p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="formError" class="form-message error" style="display: none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h3>Something went wrong</h3>
+                            <p id="errorText">Please try again or email us directly.</p>
+                            <button onclick="resetForm()" class="btn btn-outline" style="margin-top: 1rem;">Try Again</button>
+                        </div>
                     </div>
 
                     <!-- Contact Info -->
@@ -417,6 +476,7 @@
     </footer>
 
     <script>
+        // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const navLinks = document.getElementById('navLinks');
         mobileMenuToggle.addEventListener('click', () => {
@@ -429,6 +489,70 @@
                 navLinks.classList.remove('active');
             });
         });
+
+        // Contact form handling
+        const contactForm = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+        const formSuccess = document.getElementById('formSuccess');
+        const formError = document.getElementById('formError');
+        const errorText = document.getElementById('errorText');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+
+            // Gather form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                service: document.getElementById('service').value,
+                message: document.getElementById('message').value
+            };
+
+            try {
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Show success message
+                    contactForm.style.display = 'none';
+                    formSuccess.style.display = 'block';
+                } else {
+                    // Show error message
+                    errorText.textContent = result.error || 'Please try again or email us directly.';
+                    contactForm.style.display = 'none';
+                    formError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                errorText.textContent = 'Network error. Please check your connection and try again.';
+                contactForm.style.display = 'none';
+                formError.style.display = 'block';
+            }
+        });
+
+        // Reset form to try again
+        function resetForm() {
+            formError.style.display = 'none';
+            formSuccess.style.display = 'none';
+            contactForm.style.display = 'block';
+            submitBtn.disabled = false;
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+        }
     </script>
 </body>
 </html>

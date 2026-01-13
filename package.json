@@ -1,0 +1,14 @@
+{
+  "name": "abacus-site",
+  "version": "1.0.0",
+  "description": "Abacus Data Consulting website - hosted on Cloudflare Pages",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev . --port 8788",
+    "deploy": "wrangler pages deploy .",
+    "tail": "wrangler pages deployment tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}
