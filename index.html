@@ -7,19 +7,19 @@
     <style>
         /* --- CSS Variables & Reset --- */
         :root {
-            /* Dark Mode Palette */
-            --bg-body: #0b0f19;       /* Very dark blue/slate */
-            --bg-card: #151b2b;       /* Slightly lighter for cards */
-            --bg-nav: rgba(11, 15, 25, 0.85); /* Glassmorphism */
-            
+            /* Dark Mode Palette - Brand Colors */
+            --bg-body: #132853;       /* Dark Blue / Indigo */
+            --bg-card: #2E4470;       /* Deep Navy Blue */
+            --bg-nav: rgba(19, 40, 83, 0.9); /* Glassmorphism with brand color */
+
             /* Text Colors */
             --text-main: #f1f5f9;     /* Off-white */
-            --text-muted: #94a3b8;    /* Muted grey-blue */
-            
-            /* Accent Colors */
-            --accent-primary: #3b82f6; /* Bright Blue */
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --text-muted: #a8b8d0;    /* Muted blue-grey */
+
+            /* Accent Colors - Warm Gold */
+            --accent-primary: #D2AE6A; /* Warm Gold / Brass */
+            --accent-glow: rgba(210, 174, 106, 0.4);
+            --accent-gradient: linear-gradient(135deg, #D2AE6A 0%, #c49a4a 100%);
             
             /* Spacing & Layout */
             --container-width: 1200px;
@@ -315,11 +315,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: var(--accent-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #132853;
             font-weight: bold;
         }
 
@@ -332,7 +332,7 @@
         /* --- Services Section --- */
         .services {
             padding: 6rem 0;
-            background: linear-gradient(180deg, var(--bg-body) 0%, #0f131f 100%);
+            background: linear-gradient(180deg, var(--bg-body) 0%, #0e1f3d 100%);
         }
 
         .section-header {
@@ -419,9 +419,9 @@
 
         /* --- Footer --- */
         footer {
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(210, 174, 106, 0.15);
             padding: 4rem 0 2rem;
-            background: #080b12;
+            background: #0e1a35;
         }
 
         .footer-content {
@@ -462,9 +462,9 @@
         .copyright {
             text-align: center;
             padding-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(210, 174, 106, 0.15);
             font-size: 0.875rem;
-            color: #64748b;
+            color: #8a9ab8;
         }
 
         /* --- Responsive Design --- */
