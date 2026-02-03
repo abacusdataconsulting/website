@@ -1,15 +1,17 @@
 /**
  * Contact Form Handler
- * Cloudflare Pages Function - sends email via MailChannels
+ * Cloudflare Pages Function - sends email via Cloudflare Email Routing
  *
  * Endpoint: POST /api/contact
  */
+
+import { EmailMessage } from 'cloudflare:email';
 
 // Configuration
 const CONFIG = {
   toEmail: 'abacus.data.consulting@gmail.com',
   toName: 'Abacus Data Consulting',
-  fromEmail: 'noreply@abacusdataconsulting.com', // Update with your domain
+  fromEmail: 'noreply@abacusdataconsulting.com',
   fromName: 'Abacus Website',
 };
 
@@ -29,12 +31,44 @@ export async function onRequestOptions() {
 }
 
 /**
+ * Build a raw MIME email string
+ */
+function buildMimeMessage({ from, fromName, to, toName, replyTo, replyToName, subject, textBody, htmlBody }) {
+  const boundary = '----=_Part_' + Date.now().toString(36);
+
+  const headers = [
+    `From: "${fromName}" <${from}>`,
+    `To: "${toName}" <${to}>`,
+    `Reply-To: "${replyToName}" <${replyTo}>`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    `Date: ${new Date().toUTCString()}`,
+  ].join('\r\n');
+
+  const body = [
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Transfer-Encoding: 7bit`,
+    ``,
+    textBody,
+    `--${boundary}`,
+    `Content-Type: text/html; charset=utf-8`,
+    `Content-Transfer-Encoding: 7bit`,
+    ``,
+    htmlBody,
+    `--${boundary}--`,
+  ].join('\r\n');
+
+  return headers + '\r\n\r\n' + body;
+}
+
+/**
  * Handle POST requests - process contact form
  */
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  // CORS headers for response
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -79,7 +113,7 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Sanitize inputs (basic XSS prevention)
+    // Sanitize inputs
     const sanitize = (str) => String(str).replace(/[<>]/g, '');
     const cleanName = sanitize(name);
     const cleanEmail = sanitize(email);
@@ -145,59 +179,22 @@ Submitted at: ${new Date().toISOString()}
 </html>
     `.trim();
 
-    // Send email via MailChannels
-    const mailChannelsRequest = new Request('https://api.mailchannels.net/tx/v1/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        personalizations: [
-          {
-            to: [{ email: CONFIG.toEmail, name: CONFIG.toName }],
-            dkim_domain: 'abacusdataconsulting.com',
-            dkim_selector: 'mailchannels',
-            dkim_private_key: env.DKIM_PRIVATE_KEY,
-          },
-        ],
-        from: {
-          email: CONFIG.fromEmail,
-          name: CONFIG.fromName,
-        },
-        reply_to: {
-          email: cleanEmail,
-          name: cleanName,
-        },
-        subject: emailSubject,
-        content: [
-          {
-            type: 'text/plain',
-            value: emailBody,
-          },
-          {
-            type: 'text/html',
-            value: emailHtml,
-          },
-        ],
-      }),
+    // Build MIME message and send via Cloudflare Email Routing
+    const rawEmail = buildMimeMessage({
+      from: CONFIG.fromEmail,
+      fromName: CONFIG.fromName,
+      to: CONFIG.toEmail,
+      toName: CONFIG.toName,
+      replyTo: cleanEmail,
+      replyToName: cleanName,
+      subject: emailSubject,
+      textBody: emailBody,
+      htmlBody: emailHtml,
     });
 
-    const mailResponse = await fetch(mailChannelsRequest);
+    const msg = new EmailMessage(CONFIG.fromEmail, CONFIG.toEmail, rawEmail);
+    await env.EMAIL.send(msg);
 
-    if (!mailResponse.ok) {
-      const errorText = await mailResponse.text();
-      console.error('MailChannels error:', errorText);
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Failed to send email. Please try again later.'
-        }),
-        { status: 500, headers: corsHeaders }
-      );
-    }
-
-    // Success response
     return new Response(
       JSON.stringify({
         success: true,

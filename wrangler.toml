@@ -11,6 +11,11 @@ pages_build_output_dir = "./"
 # [vars]
 # CONTACT_EMAIL = "abacus.data.consulting@gmail.com"
 
+# Email Routing - send_email binding (locked to destination address)
+[[send_email]]
+name = "EMAIL"
+destination_address = "abacus.data.consulting@gmail.com"
+
 # For local development with wrangler pages dev
 [dev]
 port = 8788
