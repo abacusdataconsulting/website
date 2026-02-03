@@ -155,6 +155,9 @@ Submitted at: ${new Date().toISOString()}
         personalizations: [
           {
             to: [{ email: CONFIG.toEmail, name: CONFIG.toName }],
+            dkim_domain: 'abacusdataconsulting.com',
+            dkim_selector: 'mailchannels',
+            dkim_private_key: env.DKIM_PRIVATE_KEY,
           },
         ],
         from: {
