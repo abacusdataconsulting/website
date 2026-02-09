@@ -1,19 +1,9 @@
 /**
  * Contact Form Handler
- * Cloudflare Pages Function - sends email via Cloudflare Email Routing
+ * Cloudflare Pages Function - forwards form data to the Email Worker via Service Binding
  *
  * Endpoint: POST /api/contact
  */
-
-import { EmailMessage } from 'cloudflare:email';
-
-// Configuration
-const CONFIG = {
-  toEmail: 'abacus.data.consulting@gmail.com',
-  toName: 'Abacus Data Consulting',
-  fromEmail: 'noreply@abacusdataconsulting.com',
-  fromName: 'Abacus Website',
-};
 
 /**
  * Handle OPTIONS requests for CORS preflight
@@ -31,40 +21,7 @@ export async function onRequestOptions() {
 }
 
 /**
- * Build a raw MIME email string
- */
-function buildMimeMessage({ from, fromName, to, toName, replyTo, replyToName, subject, textBody, htmlBody }) {
-  const boundary = '----=_Part_' + Date.now().toString(36);
-
-  const headers = [
-    `From: "${fromName}" <${from}>`,
-    `To: "${toName}" <${to}>`,
-    `Reply-To: "${replyToName}" <${replyTo}>`,
-    `Subject: ${subject}`,
-    `MIME-Version: 1.0`,
-    `Content-Type: multipart/alternative; boundary="${boundary}"`,
-    `Date: ${new Date().toUTCString()}`,
-  ].join('\r\n');
-
-  const body = [
-    `--${boundary}`,
-    `Content-Type: text/plain; charset=utf-8`,
-    `Content-Transfer-Encoding: 7bit`,
-    ``,
-    textBody,
-    `--${boundary}`,
-    `Content-Type: text/html; charset=utf-8`,
-    `Content-Transfer-Encoding: 7bit`,
-    ``,
-    htmlBody,
-    `--${boundary}--`,
-  ].join('\r\n');
-
-  return headers + '\r\n\r\n' + body;
-}
-
-/**
- * Handle POST requests - process contact form
+ * Handle POST requests - validate form and forward to Email Worker
  */
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -115,85 +72,28 @@ export async function onRequestPost(context) {
 
     // Sanitize inputs
     const sanitize = (str) => String(str).replace(/[<>]/g, '');
-    const cleanName = sanitize(name);
-    const cleanEmail = sanitize(email);
-    const cleanMessage = sanitize(message);
-    const cleanService = service ? sanitize(service) : 'Not specified';
+    const cleanData = {
+      name: sanitize(name),
+      email: sanitize(email),
+      message: sanitize(message),
+      service: service ? sanitize(service) : 'Not specified',
+      timestamp: new Date().toISOString(),
+    };
 
-    // Build email content
-    const emailSubject = `New Contact Form Submission from ${cleanName}`;
-    const emailBody = `
-New contact form submission from the Abacus Data Consulting website:
+    // Forward to Email Worker via Service Binding
+    const workerResponse = await env.EMAIL_WORKER.fetch(
+      new Request('https://email-worker/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cleanData),
+      })
+    );
 
-Name: ${cleanName}
-Email: ${cleanEmail}
-Service Interested In: ${cleanService}
-
-Message:
-${cleanMessage}
-
----
-Submitted at: ${new Date().toISOString()}
-    `.trim();
-
-    const emailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background: #132853; color: #D2AE6A; padding: 20px; border-radius: 8px 8px 0 0; }
-    .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
-    .field { margin-bottom: 15px; }
-    .label { font-weight: bold; color: #132853; }
-    .message-box { background: white; padding: 15px; border-left: 4px solid #D2AE6A; margin-top: 10px; }
-    .footer { font-size: 12px; color: #666; margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2 style="margin: 0;">New Contact Form Submission</h2>
-    </div>
-    <div class="content">
-      <div class="field">
-        <span class="label">Name:</span> ${cleanName}
-      </div>
-      <div class="field">
-        <span class="label">Email:</span> <a href="mailto:${cleanEmail}">${cleanEmail}</a>
-      </div>
-      <div class="field">
-        <span class="label">Service Interested In:</span> ${cleanService}
-      </div>
-      <div class="field">
-        <span class="label">Message:</span>
-        <div class="message-box">${cleanMessage.replace(/\n/g, '<br>')}</div>
-      </div>
-      <div class="footer">
-        Submitted at: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET
-      </div>
-    </div>
-  </div>
-</body>
-</html>
-    `.trim();
-
-    // Build MIME message and send via Cloudflare Email Routing
-    const rawEmail = buildMimeMessage({
-      from: CONFIG.fromEmail,
-      fromName: CONFIG.fromName,
-      to: CONFIG.toEmail,
-      toName: CONFIG.toName,
-      replyTo: cleanEmail,
-      replyToName: cleanName,
-      subject: emailSubject,
-      textBody: emailBody,
-      htmlBody: emailHtml,
-    });
-
-    const msg = new EmailMessage(CONFIG.fromEmail, CONFIG.toEmail, rawEmail);
-    await env.EMAIL.send(msg);
+    if (!workerResponse.ok) {
+      const errData = await workerResponse.json().catch(() => ({}));
+      console.error('Email Worker returned error:', workerResponse.status, errData);
+      throw new Error('Email delivery failed');
+    }
 
     return new Response(
       JSON.stringify({

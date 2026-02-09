@@ -1,21 +1,33 @@
 # Abacus Data Consulting - Cloudflare Pages Setup Guide
 
-This guide covers deploying the website to Cloudflare Pages with serverless functions for contact form handling.
+This guide covers deploying the website to Cloudflare Pages with email sending via a separate Cloudflare Worker and Service Binding.
+
+## Architecture
+
+```
+Contact Form (browser)
+    ↓ POST /api/contact
+Pages Function (functions/api/contact.js)  — validates & sanitizes input
+    ↓ Service Binding (EMAIL_WORKER)
+Email Worker (email-worker/)               — sends email via send_email binding
+    ↓ Cloudflare Email Routing
+abacus.data.consulting@gmail.com
+```
+
+Pages Functions don't support `send_email` bindings, so we use a standalone Worker
+connected via a Service Binding (which Pages does support).
 
 ## Prerequisites
 
 - Cloudflare account
 - Domain added to Cloudflare (DNS managed by Cloudflare)
 - Node.js 18+ installed locally
-- Git repository (GitHub, GitLab, or Bitbucket)
+- Git repository (GitHub recommended)
 
 ## Quick Start (Local Development)
 
 ```bash
-# Install dependencies
 npm install
-
-# Run local development server
 npm run dev
 ```
 
@@ -25,93 +37,87 @@ Visit `http://localhost:8788` to test the site locally.
 
 ## Deployment Steps
 
-### 1. Push to Git Repository
-
-Ensure your code is pushed to a Git repository (GitHub recommended for Cloudflare Pages integration).
-
-### 2. Create Cloudflare Pages Project
+### 1. Enable Email Routing on Your Domain
 
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to **Workers & Pages** → **Create application** → **Pages**
-3. Connect your Git repository
-4. Configure build settings:
-   - **Build command:** (leave empty - static site)
-   - **Build output directory:** `/` (root)
-5. Click **Save and Deploy**
+2. Select your domain (`abacusdataconsulting.com`)
+3. In the left sidebar, click **Email** → **Email Routing**
+4. Enable Email Routing and follow the prompts to add DNS records
+5. Under **Destination addresses**, add `abacus.data.consulting@gmail.com`
+6. Check your Gmail and click the verification link
 
-### 3. Configure Custom Domain
+### 2. Add Required DNS Records
+
+| Type | Name | Content |
+|------|------|---------|
+| TXT | `@` | `v=spf1 a mx include:relay.mailchannels.net ~all` |
+
+Email Routing will add its own MX and verification records automatically.
+
+### 3. Deploy the Email Worker
+
+```bash
+cd email-worker
+npm install
+npx wrangler deploy
+```
+
+This deploys `abacus-email-worker` to your Cloudflare account. It has the `send_email`
+binding locked to `abacus.data.consulting@gmail.com`.
+
+### 4. Create Cloudflare Pages Project
+
+1. Go to **Workers & Pages** → **Create application** → **Pages**
+2. Connect your Git repository
+3. Configure build settings:
+   - **Build command:** (leave empty - static site)
+   - **Build output directory:** `/`
+4. Click **Save and Deploy**
+
+### 5. Add the Service Binding
+
+This connects your Pages site to the Email Worker:
+
+1. In your Pages project, go to **Settings** → **Functions**
+2. Scroll to **Service bindings**
+3. Click **Add binding**
+4. Set:
+   - **Variable name:** `EMAIL_WORKER`
+   - **Service:** `abacus-email-worker`
+5. Save
+
+### 6. Configure Custom Domain
 
 1. In your Pages project, go to **Custom domains**
 2. Click **Set up a custom domain**
 3. Enter your domain (e.g., `abacusdataconsulting.com`)
 4. Cloudflare will automatically configure DNS records
 
----
+### 7. Redeploy
 
-## Email Configuration (MailChannels)
-
-For the contact form to send emails, you need to configure DNS records for MailChannels.
-
-### Required DNS Records
-
-Add these DNS records in your Cloudflare DNS settings:
-
-#### SPF Record (Required)
-| Type | Name | Content |
-|------|------|---------|
-| TXT | @ | `v=spf1 a mx include:relay.mailchannels.net ~all` |
-
-#### Domain Lockdown (Required for MailChannels)
-This prevents unauthorized use of your domain for sending emails:
-
-| Type | Name | Content |
-|------|------|---------|
-| TXT | _mailchannels | `v=mc1 cfid=YOUR_ACCOUNT_ID` |
-
-To find your Cloudflare Account ID:
-1. Go to any zone in Cloudflare Dashboard
-2. Scroll down on the right sidebar
-3. Copy the **Account ID**
-
-#### DKIM Record (Recommended for better deliverability)
-Generate DKIM keys and add:
-
-| Type | Name | Content |
-|------|------|---------|
-| TXT | mailchannels._domainkey | `v=DKIM1; p=YOUR_PUBLIC_KEY` |
-
-### Update the Function Configuration
-
-Edit `functions/api/contact.js` and update the `CONFIG` object with your domain:
-
-```javascript
-const CONFIG = {
-  toEmail: 'abacus.data.consulting@gmail.com',
-  toName: 'Abacus Data Consulting',
-  fromEmail: 'noreply@abacus.com',  // ← Update this
-  fromName: 'Abacus Website',
-};
-```
+Trigger a new deployment so the Service Binding takes effect. You can do this by
+pushing a commit or clicking **Retry deployment** in the Pages dashboard.
 
 ---
 
-## Testing the Contact Form
+## Testing
 
 ### Local Testing
 
 1. Run `npm run dev`
 2. Go to `http://localhost:8788/contact.html`
 3. Submit a test form
-4. Check the terminal for any errors
+4. Check terminal for errors
 
-**Note:** MailChannels may not work in local development. Test email delivery after deploying to Cloudflare Pages.
+**Note:** The Service Binding to the Email Worker won't work locally. Email delivery
+can only be tested after deploying to Cloudflare.
 
 ### Production Testing
 
-1. Deploy to Cloudflare Pages
-2. Visit your live site's contact page
+1. Deploy both the Worker and Pages site
+2. Visit your live contact page
 3. Submit a test form
-4. Check your email inbox (and spam folder)
+4. Check your Gmail inbox (and spam folder)
 
 ---
 
@@ -119,13 +125,16 @@ const CONFIG = {
 
 ### Emails not being delivered
 
-1. **Check DNS records** - Ensure SPF and _mailchannels TXT records are properly configured
-2. **Check spam folder** - First emails may land in spam
-3. **View function logs:**
-   ```bash
-   npm run tail
-   ```
-4. **Verify domain lockdown** - The `_mailchannels` TXT record must include your Cloudflare account ID
+1. **Verify Email Routing is enabled** — check Email → Email Routing in your domain dashboard
+2. **Verify destination address** — `abacus.data.consulting@gmail.com` must be verified
+3. **Check Worker logs:** `cd email-worker && npx wrangler tail`
+4. **Check Pages Function logs:** `npm run tail`
+5. **Check spam folder** — first emails may land in spam
+
+### "EMAIL_WORKER is not defined" error
+
+The Service Binding is not configured. Go to Pages → Settings → Functions → Service bindings
+and add the `EMAIL_WORKER` → `abacus-email-worker` binding. Then redeploy.
 
 ### Form submission errors
 
@@ -133,31 +142,29 @@ const CONFIG = {
 2. Submit the form and check the `/api/contact` request
 3. Look at the response for error details
 
-### CORS errors
-
-The function includes CORS headers. If you see CORS errors:
-1. Ensure you're accessing the site via the correct domain
-2. Check that the function is deployed correctly
-
 ---
 
 ## Project Structure
 
 ```
 abacus-site/
-├── index.html          # Homepage
-├── about.html          # About page
-├── services.html       # Services page
-├── contact.html        # Contact page (with form)
-├── careers.html        # Careers page
-├── assets/             # Images and assets
+├── index.html              # Homepage
+├── about.html              # About page
+├── services.html           # Services page
+├── contact.html            # Contact page (with form)
+├── careers.html            # Careers page
+├── assets/                 # Images and assets
 │   └── abacus_logo.png
-├── functions/          # Cloudflare Pages Functions
+├── functions/              # Cloudflare Pages Functions
 │   └── api/
-│       └── contact.js  # Contact form handler
-├── wrangler.toml       # Cloudflare configuration
-├── package.json        # Node.js dependencies
-└── .gitignore          # Git ignore rules
+│       └── contact.js      # Contact form handler (calls Email Worker)
+├── email-worker/           # Standalone Cloudflare Worker for email
+│   ├── wrangler.toml       # Worker config with send_email binding
+│   ├── package.json
+│   └── src/
+│       └── index.js        # Email sending logic
+├── package.json            # Pages project dependencies
+└── SETUP.md                # This file
 ```
 
 ---
@@ -165,31 +172,15 @@ abacus-site/
 ## Useful Commands
 
 ```bash
-# Start local dev server
+# Start local Pages dev server
 npm run dev
 
-# Deploy to Cloudflare Pages (manual)
-npm run deploy
+# Deploy the Email Worker
+cd email-worker && npx wrangler deploy
 
-# View real-time logs from deployed functions
+# View Pages Function logs
 npm run tail
+
+# View Email Worker logs
+cd email-worker && npx wrangler tail
 ```
-
----
-
-## Adding Spam Protection (Future)
-
-When you're ready to add Cloudflare Turnstile:
-
-1. Go to Cloudflare Dashboard → Turnstile
-2. Add a new site and get your site key and secret key
-3. Add the Turnstile widget to `contact.html`
-4. Update `functions/api/contact.js` to verify the token
-
----
-
-## Support
-
-For issues with:
-- **Cloudflare Pages:** [Cloudflare Community](https://community.cloudflare.com/)
-- **MailChannels:** [MailChannels Docs](https://mailchannels.zendesk.com/hc/en-us)
