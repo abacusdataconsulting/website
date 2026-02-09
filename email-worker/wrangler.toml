@@ -6,3 +6,4 @@ compatibility_date = "2024-01-01"
 [[send_email]]
 name = "EMAIL"
 destination_address = "abacus.data.consulting@gmail.com"
+account_id = "b42363c7f4b8436e1f066450d38d9327"

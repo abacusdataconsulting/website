@@ -22,6 +22,7 @@ function buildMimeMessage({ from, fromName, to, toName, replyTo, replyToName, su
     `To: "${toName}" <${to}>`,
     `Reply-To: "${replyToName}" <${replyTo}>`,
     `Subject: ${subject}`,
+    `Message-ID: <${Date.now()}.${Math.random().toString(36).slice(2)}@abacusdataconsulting.com>`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
     `Date: ${new Date().toUTCString()}`,
