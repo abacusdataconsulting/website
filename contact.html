@@ -493,6 +493,8 @@
         });
 
         // Contact form handling
+        // Submits to /api/contact (Cloudflare Pages Function) as JSON.
+        // Expects back: { success: boolean, message?: string, error?: string }
         const contactForm = document.getElementById('contactForm');
         const submitBtn = document.getElementById('submitBtn');
         const btnText = submitBtn.querySelector('.btn-text');
@@ -509,7 +511,8 @@
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline-flex';
 
-            // Gather form data
+            // Gather form data — keys must match what the Pages Function validates:
+            // name (required), email (required), message (required), service (optional)
             const formData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
@@ -518,6 +521,7 @@
             };
 
             try {
+                // POST to the Pages Function at /api/contact (maps to functions/api/contact.js)
                 const response = await fetch('/api/contact', {
                     method: 'POST',
                     headers: {

@@ -1,8 +1,17 @@
+# Worker name — this must match the "Service" value in the Pages Service Binding
 name = "abacus-email-worker"
+
+# Entry point for the Worker
 main = "src/index.js"
+
+# Workers runtime compatibility date
 compatibility_date = "2024-01-01"
 
-# send_email binding locked to a single destination address
+# send_email binding — enables env.EMAIL.send() in Worker code.
+# "name" becomes the binding variable (env.EMAIL).
+# "destination_address" restricts this binding to a single verified recipient;
+# the address must be verified under Email Routing → Destination addresses.
+# "account_id" ties the binding to the correct Cloudflare account.
 [[send_email]]
 name = "EMAIL"
 destination_address = "abacus.data.consulting@gmail.com"

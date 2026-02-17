@@ -6,7 +6,9 @@
  */
 
 /**
- * Handle OPTIONS requests for CORS preflight
+ * Handle OPTIONS requests for CORS preflight.
+ * Browsers send a preflight OPTIONS request before any cross-origin POST.
+ * These headers tell the browser the POST is allowed.
  */
 export async function onRequestOptions() {
   return new Response(null, {
@@ -15,7 +17,7 @@ export async function onRequestOptions() {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
+      'Access-Control-Max-Age': '86400', // cache preflight for 24 hours
     },
   });
 }
@@ -26,6 +28,7 @@ export async function onRequestOptions() {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
+  // Every response needs CORS headers so the browser accepts it
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -70,7 +73,8 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Sanitize inputs
+    // Sanitize inputs — strip angle brackets to prevent HTML/script injection
+    // in the email body (the Email Worker embeds these values in an HTML template)
     const sanitize = (str) => String(str).replace(/[<>]/g, '');
     const cleanData = {
       name: sanitize(name),
@@ -80,7 +84,10 @@ export async function onRequestPost(context) {
       timestamp: new Date().toISOString(),
     };
 
-    // Forward to Email Worker via Service Binding
+    // Forward to Email Worker via Service Binding.
+    // The URL "https://email-worker/send" is a convention — Service Bindings
+    // intercept the fetch so the hostname never actually resolves. Any URL
+    // would work; the path /send is used for readability.
     const workerResponse = await env.EMAIL_WORKER.fetch(
       new Request('https://email-worker/send', {
         method: 'POST',

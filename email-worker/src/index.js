@@ -7,6 +7,10 @@
 
 import { EmailMessage } from 'cloudflare:email';
 
+// Email addresses used in every outbound message.
+// fromEmail — the envelope sender; must be on a domain with Email Routing enabled.
+// toEmail   — must exactly match the destination_address in wrangler.toml's
+//             [[send_email]] binding, or Cloudflare will reject the send.
 const CONFIG = {
   fromEmail: 'noreply@abacusdataconsulting.com',
   fromName: 'Abacus Website',
@@ -14,6 +18,10 @@ const CONFIG = {
   toName: 'Abacus Data Consulting',
 };
 
+// Cloudflare's send_email API requires a raw RFC 5322 MIME message (not a
+// simple JSON payload). This function assembles a multipart/alternative
+// message with both plain-text and HTML parts so email clients can pick
+// whichever they prefer.
 function buildMimeMessage({ from, fromName, to, toName, replyTo, replyToName, subject, textBody, htmlBody }) {
   const boundary = '----=_Part_' + Date.now().toString(36);
 
@@ -132,6 +140,9 @@ Submitted at: ${timestamp || new Date().toISOString()}
         htmlBody,
       });
 
+      // env.EMAIL is the send_email binding defined in wrangler.toml.
+      // EmailMessage wraps the raw MIME string with envelope from/to addresses.
+      // .send() hands the message to Cloudflare Email Routing for delivery.
       const msg = new EmailMessage(CONFIG.fromEmail, CONFIG.toEmail, rawEmail);
       await env.EMAIL.send(msg);
 
